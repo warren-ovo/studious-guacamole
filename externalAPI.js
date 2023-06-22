@@ -1,6 +1,7 @@
 const axios = require("axios");
 const logger = require("./logger");
 const { specialSubRoutine } = require("./helpers");
+const Context = require("node-execution-context");
 
 class ExternalAPIClient {
   constructor(baseURL, defaultHeaders = {}) {
@@ -10,8 +11,9 @@ class ExternalAPIClient {
 
   async post(url, data = {}, headers = {}) {
     try {
+      const { traceToken } = Context.get();
       const response = await axios.post(`${this.baseURL}${url}`, data, {
-        headers: { ...this.defaultHeaders, ...headers },
+        headers: { 'x-trace-token': traceToken, ...this.defaultHeaders, ...headers },
       });
       return response.data;
     } catch (error) {
@@ -40,13 +42,13 @@ class ExternalAPIClient {
     }
   }
 
-  async sendRequest1(data) {
-    const url = "/route1"; // Replace with the appropriate route on the external API
+  async topUp(data) {
+    const url = "/topUp"; // Replace with the appropriate route on the external API
     const headers = { "Content-Type": "application/json" };
     return this.post(url, data, headers);
   }
 
-  async sendRequest2(data) {
+  async sendRequest(data) {
     const url = "/route2"; // Replace with the appropriate route on the external API
     const headers = { "Content-Type": "application/json" };
     return this.post(url, data, headers);

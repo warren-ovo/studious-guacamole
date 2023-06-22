@@ -1,26 +1,23 @@
 // server.js
 const express = require("express");
-const app = express();
 
 // Require the route files
 const route1Handler = require("./routes/route1.js");
 const route2Handler = require("./routes/route2.js");
 const route3Handler = require("./routes/route3.js");
 const logger = require("./logger.js");
-const reqInfo = require("./reqInfo");
+const app = express();
+const { LoggingMiddleware, ContextMiddleware } = require("./middlewares");
 
+app.use(ContextMiddleware);
 // Register the route handlers
-app.use((req, res, next) => {
-  logger.info(`request started ${req.url}`);
-  reqInfo.set(req.traceToken || Date.now() + "uuid");
-  res.on("finish", () => {
-    logger.info(`request finished ${req.url}`);
-    reqInfo.delete(req.traceToken || Date.now() + "uuid");
-  });
-  next();
-});
+app.use(LoggingMiddleware);
 
-app.get("/route1", route1Handler);
+app.post("/route1", route1Handler);
+app.post("/topUp", (req, res, next) => {
+  logger.info("got top up with headers, ", req.headers);
+  res.send({ message: "good" });
+});
 app.get("/route2", route2Handler);
 app.get("/route3", route3Handler);
 
