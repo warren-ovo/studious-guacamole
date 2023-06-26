@@ -1,7 +1,7 @@
 const axios = require("axios");
 const logger = require("./logger");
 const { specialSubRoutine } = require("./helpers");
-const Context = require("node-execution-context");
+const asyncLocalStorage = require("./asyncContext");
 
 class ExternalAPIClient {
   constructor(baseURL, defaultHeaders = {}) {
@@ -11,7 +11,7 @@ class ExternalAPIClient {
 
   async post(url, data = {}, headers = {}) {
     try {
-      const { traceToken } = Context.get();
+      const { traceToken } = asyncLocalStorage.getStore();
       const response = await axios.post(`${this.baseURL}${url}`, data, {
         headers: { 'x-trace-token': traceToken, ...this.defaultHeaders, ...headers },
       });

@@ -1,6 +1,6 @@
 const { smets2Service } = require("../externalAPI");
 const logger = require("../logger");
-const Context = require("node-execution-context");
+const asyncLocalStorage = require("../asyncContext");
 
 // route1.js
 async function route1Handler(req, res) {
@@ -10,7 +10,7 @@ async function route1Handler(req, res) {
     const response = await smets2Service.topUp(topUpData).catch((e) => {
       logger.info(
         "something happened here but this doesnt mean our app is broken and should error",
-        Context.get()
+        asyncLocalStorage.getStore()
       );
     });
     res.send(response);
