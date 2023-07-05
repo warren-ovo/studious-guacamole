@@ -1,20 +1,19 @@
 // server.js
 const express = require("express");
-
 // Require the route files
-const route1Handler = require("./routes/route1.js");
+const getPetsHandler = require("./routes/petsRoute.js");
 const route2Handler = require("./routes/route2.js");
 const route3Handler = require("./routes/route3.js");
-const app = express();
 const { LoggingMiddleware, ContextMiddleware } = require("./middlewares");
-const topUp = require("./routes/topUp.js");
+
+
+const app = express();
 
 app.use(ContextMiddleware);
-// Register the route handlers
 app.use(LoggingMiddleware);
 
-app.post("/route1", route1Handler);
-app.post("/topUp", topUp);
+app.get("/pets", getPetsHandler);
+app.get("/pets/:petId", getPetsHandler);
 app.get("/route2", route2Handler);
 app.get("/route3", route3Handler);
 

@@ -1,6 +1,5 @@
 const axios = require("axios");
 const logger = require("./logger");
-const { specialSubRoutine } = require("./helpers");
 const asyncLocalStorage = require("./asyncContext");
 
 class ExternalAPIClient {
@@ -13,7 +12,11 @@ class ExternalAPIClient {
     try {
       const { traceToken } = asyncLocalStorage.getStore();
       const response = await axios.post(`${this.baseURL}${url}`, data, {
-        headers: { 'x-trace-token': traceToken, ...this.defaultHeaders, ...headers },
+        headers: {
+          "x-trace-token": traceToken,
+          ...this.defaultHeaders,
+          ...headers,
+        },
       });
       return response.data;
     } catch (error) {
@@ -21,24 +24,19 @@ class ExternalAPIClient {
     }
   }
 
-  async funRoute() {
-    // Generate a random number between 1 and 10
-    const randomNumber = Math.floor(Math.random() * 10) + 1;
-
-    // Simulate HTTP responses based on the random number
-    if (randomNumber <= 4) {
-      // Simulate a successful response (2xx status code)
-      logger.info("Simulating a successful response...");
-      return { status: 200, data: "Success" };
-    } else if (randomNumber <= 7) {
-      // Simulate a client error response (4xx status code)
-      logger.info("Simulating a client error response...");
-      specialSubRoutine();
-      return { status: 404, data: "Not Found" };
-    } else {
-      // Simulate a server error response (5xx status code)
-      logger.info("Simulating a server error response...");
-      return { status: 500, data: "Internal Server Error" };
+  async get(url, headers = {}) {
+    try {
+      const { traceToken } = asyncLocalStorage.getStore();
+      const response = await axios.get(`${this.baseURL}${url}`, {
+        headers: {
+          "x-trace-token": traceToken,
+          ...this.defaultHeaders,
+          ...headers,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(`Error sending POST request to ${url}: ${error.message}`);
     }
   }
 
@@ -48,14 +46,33 @@ class ExternalAPIClient {
     return this.post(url, data, headers);
   }
 
-  async sendRequest(data) {
-    const url = "/route2"; // Replace with the appropriate route on the external API
-    const headers = { "Content-Type": "application/json" };
-    return this.post(url, data, headers);
+  async getPets(id) {
+    const url = "/pets";
+    try {
+      if (id !== undefined) {
+        const pet = await this.get(`${url}/${id}`);
+        const owner = await this.get(`/owners/${pet.ownerId}`);
+        const breed = await this.get(`/breeds/${pet.breedId}`);
+        return { name: pet.name, owner: owner.name, breed: breed.name };
+      } else {
+        return this.get(url);
+      }
+    } catch (error) {
+      console.log(error);
+      if (error.response?.status === 404) {
+        throw new HTTPError(404);
+      } else {
+        throw error;
+      }
+    }
   }
 }
 
+const PETS_URL = "https://b7d2cba3-23e4-4881-bf8d-a58d9776eb94.mock.pstmn.io"
+// "http://localhost:3030"
+
+
 module.exports = {
   ExternalAPIClient,
-  smets2Service: new ExternalAPIClient("http://localhost:3000"),
+  petService: new ExternalAPIClient(PETS_URL),
 };

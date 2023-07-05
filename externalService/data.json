@@ -1,0 +1,36 @@
+{
+  "pets": [
+    {
+      "id": 1,
+      "name": "Max",
+      "ownerId": 1,
+      "breedId": 1
+    },
+    {
+      "id": 2,
+      "name": "Bella",
+      "ownerId": 2,
+      "breedId": 2
+    }
+  ],
+  "owners": [
+    {
+      "id": 1,
+      "name": "John"
+    },
+    {
+      "id": 2,
+      "name": "Sarah"
+    }
+  ],
+  "breeds": [
+    {
+      "id": 1,
+      "name": "Labrador Retriever"
+    },
+    {
+      "id": 2,
+      "name": "Poodle"
+    }
+  ]
+}
